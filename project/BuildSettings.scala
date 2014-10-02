@@ -10,9 +10,11 @@ import sbtunidoc.Plugin.UnidocKeys._
 import spray.revolver.RevolverPlugin.Revolver
 import com.typesafe.sbt.osgi.SbtOsgi
 import SbtOsgi._
+import bintray.Plugin.bintrayPublishSettings
+
 
 object BuildSettings {
-  val VERSION = "1.1-SNAPSHOT"
+  val VERSION = "1.2.2.velvia"
 
   lazy val basicSettings = seq(
     version               := NightlyBuildSupport.buildVersion(VERSION),
@@ -41,6 +43,7 @@ object BuildSettings {
     NightlyBuildSupport.settings ++
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++
     SbtPgp.settings ++
+    bintrayPublishSettings ++
     seq(
       // scaladoc settings
       (scalacOptions in doc) <++= (name, version).map { (n, v) => Seq("-doc-title", n, "-doc-version", v) },
@@ -48,20 +51,20 @@ object BuildSettings {
       // publishing
       crossPaths := false,
       publishMavenStyle := true,
-      SbtPgp.useGpg := true,
-      publishTo <<= version { version =>
-        Some {
-          if (version.contains("-") || true) { // sonatype publishing currently disabled
-            "spray nexus" at {
-              // public uri is repo.spray.io, we use an SSH tunnel to the nexus here
-              "http://localhost:42424/content/repositories/" + {
-                if (version.trim.endsWith("SNAPSHOT")) "snapshots/" else
-                if (NightlyBuildSupport.isNightly) "nightlies/" else "releases/"
-              }
-            }
-          } else "sonatype release staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-        }
-      },
+      // SbtPgp.useGpg := true,
+      // publishTo <<= version { version =>
+      //   Some {
+      //     if (version.contains("-") || true) { // sonatype publishing currently disabled
+      //       "spray nexus" at {
+      //         // public uri is repo.spray.io, we use an SSH tunnel to the nexus here
+      //         "http://localhost:42424/content/repositories/" + {
+      //           if (version.trim.endsWith("SNAPSHOT")) "snapshots/" else
+      //           if (NightlyBuildSupport.isNightly) "nightlies/" else "releases/"
+      //         }
+      //       }
+      //     } else "sonatype release staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+      //   }
+      // },
       pomIncludeRepository := { _ => false },
       pomExtra :=
         <scm>
